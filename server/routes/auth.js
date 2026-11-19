@@ -32,7 +32,7 @@ const base = {
 const studentSchema = z.object({
   accountType: z.literal('student'),
   ...base,
-  institutionId: id,
+  institutionId: z.coerce.number({ error: 'Select your institution from the approved list.' }).int().positive('Select your institution from the approved list.'),
   programme: text(2, 120, 'Academic programme'),
   academicLevel: z.enum(ACADEMIC_LEVELS, { error: 'Select your level of study.' }),
   currentYear: z.coerce.number({ error: 'Select your current year.' }).int().min(1, 'Select your current year.').max(6, 'Select your current year.'),
@@ -43,7 +43,7 @@ const recruiterSchema = z.object({
   ...base,
   designation: text(2, 100, 'Designation'),
   organisationMode: z.enum(['existing', 'new'], { error: 'Choose your organisation.' }),
-  organisationId: id.optional(),
+  organisationId: z.coerce.number({ error: 'Select your organisation from the list.' }).int().positive('Select your organisation from the list.').optional(),
   organisation: z.object({
     name: text(2, 120, 'Organisation name'),
     website: url('Website'),
@@ -92,7 +92,9 @@ async function issueCode(user) {
   });
 }
 
-function sessionPayload(req, res, user) {
+function sessionPayload(req, resOrUser, maybeUser) {
+  const user = maybeUser !== undefined ? maybeUser : resOrUser;
+  const res = (maybeUser !== undefined && resOrUser && typeof resOrUser.cookie === 'function') ? resOrUser : null;
   return { user: publicUser(user), verification: verificationState(user), next: nextFor(user), home: homeFor(user), csrfToken: csrfToken(req, res) };
 }
 
@@ -168,7 +170,7 @@ router.post('/register', limiters.register, validate(registerSchema), async (req
   req.user = user;
   await issueCode(user);
   audit(req, 'auth.register', { entityType: 'user', entityId: userId, details: { role: user.role } });
-  res.status(201).json(sessionPayload(req, user));
+  res.status(201).json(sessionPayload(req, res, user));
 });
 
 router.post('/login', limiters.login, validate(loginSchema), async (req, res) => {
@@ -196,7 +198,7 @@ router.post('/login', limiters.login, validate(loginSchema), async (req, res) =>
   const loaded = freshUser(user.id);
   req.user = loaded;
   audit(req, 'auth.login', { entityType: 'user', entityId: user.id });
-  res.json(sessionPayload(req, loaded));
+  res.json(sessionPayload(req, res, loaded));
 });
 
 router.post('/logout', (req, res, next) => {
@@ -211,7 +213,7 @@ router.post('/logout', (req, res, next) => {
 
 router.post('/verify-email', requireAuth, limiters.otp, validate(z.object({ code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code.') })), (req, res) => {
   const u = req.user;
-  if (u.email_verified_at) return res.json(sessionPayload(req, u));
+  if (u.email_verified_at) return res.json(sessionPayload(req, res, u));
   const row = db().get('SELECT * FROM email_verifications WHERE user_id = ? AND consumed_at IS NULL ORDER BY id DESC LIMIT 1', [u.id]);
   if (!row || parseSql(row.expires_at) < new Date()) throw new HttpError(422, 'This code has expired. Request a new one.', { fields: { code: 'This code has expired. Request a new one.' } });
   if (row.attempts >= 5) throw new HttpError(429, 'Too many incorrect attempts. Request a new code.', { fields: { code: 'Too many incorrect attempts. Request a new code.' } });
@@ -234,7 +236,7 @@ router.post('/verify-email', requireAuth, limiters.otp, validate(z.object({ code
   });
   audit(req, 'auth.email_verified', { entityType: 'user', entityId: u.id });
   const fresh = freshUser(u.id);
-  return res.json(sessionPayload(req, fresh));
+  return res.json(sessionPayload(req, res, fresh));
 });
 
 router.post('/resend-code', requireAuth, limiters.resend, async (req, res) => {
@@ -298,12 +300,12 @@ router.post('/verification-proof', requireAuth, limiters.upload, proofUpload, as
   });
   notifyAdmins({ type: 'verification', title: `New ${u.role} verification request`, body: `${u.full_name} submitted proof for review.`, link: '/admin/verifications' });
   audit(req, 'verification.submitted', { entityType: 'user', entityId: u.id, details: { kind } });
-  res.status(201).json(sessionPayload(req, freshUser(u.id)));
+  res.status(201).json(sessionPayload(req, res, freshUser(u.id)));
 });
 
 /** Development-only mail preview so the demo works without SMTP. Shows only the signed-in user's own mail. */
 router.get('/dev-mailbox', requireAuth, (req, res) => {
-  if (!config.mail.devMailbox || (config.isProd && process.env.ALLOW_DEMO_SEED !== 'true')) throw new HttpError(404, 'Not available.');
+  if (!config.mail.devMailbox || (config.isProd && !config.isVercel && process.env.ALLOW_DEMO_SEED !== 'true')) throw new HttpError(404, 'Not available.');
   const messages = db().all('SELECT subject, body, created_at FROM email_outbox WHERE to_email = ? ORDER BY id DESC LIMIT 3', [req.user.email]);
   res.json({ messages });
 });

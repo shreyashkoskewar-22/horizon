@@ -61,6 +61,17 @@ export function combobox({ input, hidden, search, onSelect, minChars = 0, emptyT
     const opt = e.target.closest('[data-i]');
     if (opt) { e.preventDefault(); choose(items[Number(opt.dataset.i)]); }
   });
-  input.addEventListener('blur', () => setTimeout(close, 120));
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      close();
+      if (hidden && !hidden.value && input.value.trim() && items.length > 0) {
+        const val = input.value.trim().toLowerCase();
+        const match = items.find((it) => it.label.toLowerCase() === val)
+          || items.find((it) => it.sub && it.sub.toLowerCase() === val)
+          || (items.length === 1 ? items[0] : null);
+        if (match) choose(match);
+      }
+    }, 150);
+  });
   return { close, refresh: show };
 }

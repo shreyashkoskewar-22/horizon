@@ -14,7 +14,13 @@ const CONTENT = require('./seed-content');
 const DESTINATIONS_PREPARED_ON = '2026-11-18';
 
 function seedInstitutions(db) {
-  if (db.value('SELECT COUNT(*) FROM institutions')) return { inserted: 0, ids: Object.fromEntries(db.all('SELECT id, name FROM institutions').map((r) => [r.name, r.id])) };
+  if (db.value('SELECT COUNT(*) FROM institutions')) {
+    const vnit = db.get("SELECT id FROM institutions WHERE name LIKE '%Visvesvaraya%'");
+    if (vnit) {
+      try { db.run("INSERT OR IGNORE INTO institution_domains (institution_id, domain, is_verified) VALUES (?, 'vnit.ac.in', 1)", [vnit.id]); } catch {}
+    }
+    return { inserted: 0, ids: Object.fromEntries(db.all('SELECT id, name FROM institutions').map((r) => [r.name, r.id])) };
+  }
   const ids = {};
   db.tx(() => {
     for (const [name, city, state, act] of INST.ROWS) {

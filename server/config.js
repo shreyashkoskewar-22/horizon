@@ -71,7 +71,7 @@ const config = {
     user: env.SMTP_USER || '',
     pass: env.SMTP_PASS || '',
     from: env.MAIL_FROM || 'HORIZON <no-reply@horizon.example>',
-    devMailbox: bool(env.DEV_MAILBOX, !isProd),
+    devMailbox: bool(env.DEV_MAILBOX, !isProd || isVercel),
   },
   seed: {
     onStart: bool(env.SEED_ON_START, !isProd && !isTest),

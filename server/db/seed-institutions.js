@@ -271,6 +271,7 @@ const DOMAINS = {
   'Indian Institute of Technology (BHU) Varanasi': ['iitbhu.ac.in'],
   'National Institute of Technology, Tiruchirappalli': ['nitt.edu'],
   'National Institute of Technology, Karnataka': ['nitk.edu.in'],
+  'Visvesvaraya National Institute of Technology, Nagpur': ['vnit.ac.in'],
   'Indian Institute of Science Education and Research, Pune': ['iiserpune.ac.in'],
   'Indian Institute of Information Technology, Allahabad': ['iiita.ac.in'],
   'Indian Statistical Institute': ['isical.ac.in'],

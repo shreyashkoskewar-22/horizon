@@ -133,6 +133,11 @@ async function wireStudent(form) {
     onSelect: () => { input.dispatchEvent(new Event('input')); hint(form); },
     emptyText: 'Not found. Only Institutions of National Importance are eligible.',
   });
+  input.addEventListener('input', () => {
+    const err = $('#err-institutionSearch', form);
+    if (err) err.textContent = '';
+    input.removeAttribute('aria-invalid');
+  });
   $('#email', form).addEventListener('input', () => hint(form));
 }
 
@@ -176,9 +181,34 @@ async function submit(e, form) {
   $('#err-captcha', form).textContent = token ? '' : 'Please complete the security check.';
   if (!ok || !token) return;
   const values = formToObject(form);
+  const typedInst = ($('#institutionSearch', form)?.value || '').trim().toLowerCase();
   delete values.institutionSearch; delete values.orgSearch;
   const body = { ...values, accountType: role, captchaToken: token };
-  if (role === 'student') { body.institutionId = Number(body.institutionId); body.currentYear = Number(body.currentYear); body.graduationYear = Number(body.graduationYear); }
+  if (role === 'student') {
+    let instId = Number(body.institutionId);
+    if ((!instId || isNaN(instId) || instId <= 0) && typedInst && institutions) {
+      const match = institutions.find((i) => i.name.toLowerCase() === typedInst)
+        || institutions.find((i) => (i.shortName && i.shortName.toLowerCase() === typedInst))
+        || institutions.find((i) => i.name.toLowerCase().includes(typedInst) || typedInst.includes(i.name.toLowerCase()));
+      if (match) {
+        instId = match.id;
+        const hiddenInst = form.querySelector('[name=institutionId]');
+        if (hiddenInst) hiddenInst.value = match.id;
+        const inputInst = $('#institutionSearch', form);
+        if (inputInst) inputInst.value = match.name;
+      }
+    }
+    if (!instId || isNaN(instId) || instId <= 0) {
+      const errEl = $('#err-institutionSearch', form);
+      if (errEl) errEl.textContent = 'Please select your institution from the approved list.';
+      const inputInst = $('#institutionSearch', form);
+      if (inputInst) { inputInst.setAttribute('aria-invalid', 'true'); inputInst.focus(); }
+      return;
+    }
+    body.institutionId = instId;
+    body.currentYear = Number(body.currentYear);
+    body.graduationYear = Number(body.graduationYear);
+  }
   else {
     if (body.organisationMode === 'existing') { body.organisationId = Number(body.organisationId); delete body.organisation; }
     else delete body.organisationId;
