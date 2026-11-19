@@ -20,7 +20,7 @@ const ago = (days, hours = 0) => toSql(addHours(addDays(new Date(), -days), -hou
 const inDays = (days) => dateOnly(addDays(new Date(), days));
 
 async function seed(db, { log = console.log } = {}) {
-  if (config.isProd && process.env.ALLOW_DEMO_SEED !== 'true') throw new Error('Refusing to seed demo data in production.');
+  if (config.isProd && !config.isVercel && process.env.ALLOW_DEMO_SEED !== 'true') throw new Error('Refusing to seed demo data in production.');
   const files = require('../services/files');
   const { validateResume } = require('../services/resume-validator');
   files.ensureStorage();

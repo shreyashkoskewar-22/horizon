@@ -45,6 +45,7 @@ const config = {
   env: NODE_ENV,
   isProd,
   isTest,
+  isVercel,
   port,
   host: env.HOST || '127.0.0.1',
   appUrl: (env.APP_URL || `http://localhost:${port}`).replace(/\/$/, ''),

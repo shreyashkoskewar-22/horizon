@@ -14,12 +14,12 @@ router.get('/config', (req, res) => {
   res.json({
     env: config.env,
     captcha: { provider: config.captcha.provider, siteKey: config.captcha.siteKey, devToken: config.captcha.provider === 'dev-bypass' ? config.captcha.devToken : undefined, testKeys: config.captcha.usingTestKeys },
-    devMailbox: config.mail.devMailbox && (!config.isProd || process.env.ALLOW_DEMO_SEED === 'true'),
+    devMailbox: config.mail.devMailbox && (!config.isProd || config.isVercel || process.env.ALLOW_DEMO_SEED === 'true'),
     uploads: config.uploads,
     grievance: { officerName: config.grievance.officerName, officerEmail: config.grievance.officerEmail, ackHours: config.grievance.ackHours, resolveDays: config.grievance.resolveDays, urgentResolveHours: config.grievance.urgentResolveHours, appealDays: config.grievance.appealDays, reopenDays: config.grievance.reopenDays, respondentDays: config.grievance.respondentDays },
     recruiterResponseDays: config.recruiterResponseDays,
     // Development convenience only: lets the login page pre-fill the seeded demo accounts.
-    demoAccounts: (config.env === 'development' || process.env.ALLOW_DEMO_SEED === 'true') ? [
+    demoAccounts: (config.env === 'development' || config.isVercel || process.env.ALLOW_DEMO_SEED === 'true') ? [
       { role: 'Student (approved)', email: config.seed.studentEmail, password: config.seed.studentPassword },
       { role: 'Recruiter (verified)', email: config.seed.recruiterEmail, password: config.seed.recruiterPassword },
       { role: 'Administrator', email: config.seed.adminEmail, password: config.seed.adminPassword },
