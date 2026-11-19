@@ -86,15 +86,24 @@ function recruiterForm(orgTypes) {
 }
 
 async function draw() {
-  const cfg = await getConfig();
+  const cfg = await getConfig().catch(() => ({}));
+  const orgTypes = (cfg && cfg.lists && cfg.lists.orgTypes) || ['Corporate', 'Startup', 'NGO', 'Research Institute', 'Financial Services', 'Technology', 'Consulting'];
   render(main, html`${registerSteps(1)}<h1>Join HORIZON</h1><p class="lead">Create your account. Verification takes a few minutes for most students.</p>
     <div class="role-tabs" role="tablist" aria-label="Account type">
-      <button class="role-tab" role="tab" aria-selected="${String(role === 'student')}" data-role="student">${icon('graduation', { size: 22 })}<div><strong>I’m a student</strong><span>At an Institution of National Importance</span></div></button>
-      <button class="role-tab" role="tab" aria-selected="${String(role === 'recruiter')}" data-role="recruiter">${icon('building', { size: 22 })}<div><strong>I’m a recruiter</strong><span>Hiring international interns</span></div></button>
+      <button class="role-tab" role="tab" type="button" aria-selected="${String(role === 'student')}" data-role="student">${icon('graduation', { size: 22 })}<div><strong>I’m a student</strong><span>At an Institution of National Importance</span></div></button>
+      <button class="role-tab" role="tab" type="button" aria-selected="${String(role === 'recruiter')}" data-role="recruiter">${icon('building', { size: 22 })}<div><strong>I’m a recruiter</strong><span>Hiring international interns</span></div></button>
     </div>
     <div data-alert></div>
-    ${role === 'student' ? studentForm() : recruiterForm(cfg.lists.orgTypes)}`);
-  $$('[data-role]', main).forEach((b) => b.addEventListener('click', () => { if (b.dataset.role !== role) { role = b.dataset.role; history.replaceState(null, '', role === 'recruiter' ? '?as=recruiter' : '/register'); draw(); } }));
+    ${role === 'student' ? studentForm() : recruiterForm(orgTypes)}`);
+  $$('[data-role]', main).forEach((b) => b.addEventListener('click', (e) => {
+    e.preventDefault();
+    const targetRole = b.dataset.role;
+    if (targetRole && targetRole !== role) {
+      role = targetRole;
+      history.replaceState(null, '', role === 'recruiter' ? '?as=recruiter' : '/register');
+      draw();
+    }
+  }));
   const form = $('[data-form]', main);
   liveValidate(form);
   passwordToggle($('[data-toggle-password]', form), $('#password', form));
