@@ -53,6 +53,7 @@ function createApp() {
   api.use('/admin', require('./routes/admin'));
   api.use((req, res, next) => next(new HttpError(404, 'API endpoint not found.')));
   app.use('/api', api);
+  if (config.isVercel) app.use(api);
 
   /* ---------------------------------------------------------------- Pages */
   const pub = config.publicDir;
@@ -98,7 +99,9 @@ function createApp() {
       const expose = error instanceof HttpError || status < 500;
       return res.status(status).json({ error: { code: error.code || 'ERROR', message: expose ? error.message : 'Something went wrong on our side. Please try again.', fields: error.fields } });
     }
-    return res.status(status).sendFile(path.join(pub, status === 404 ? '404.html' : 'error.html'));
+    const errorFile = path.join(pub, status === 404 ? '404.html' : 'error.html');
+    if (fs.existsSync(errorFile)) return res.status(status).sendFile(errorFile);
+    return res.status(status).json({ error: { code: error.code || 'ERROR', message: error.message || 'Error' } });
   });
 
   return app;

@@ -54,7 +54,8 @@ class Database {
     this.driver = openDriver(file);
     this.cache = new Map();
     this.depth = 0;
-    this.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000; PRAGMA synchronous = NORMAL;');
+    const journal = config.isVercel ? 'DELETE' : 'WAL';
+    this.exec(`PRAGMA journal_mode = ${journal}; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000; PRAGMA synchronous = NORMAL;`);
   }
 
   stmt(sql) {

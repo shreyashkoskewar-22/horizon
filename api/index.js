@@ -9,7 +9,6 @@ let app;
 try {
   app = createApp();
 
-  // Run initialization / seed on cold start if empty
   try {
     const db = getDb();
     if (!db.value("SELECT COUNT(*) FROM users WHERE role = 'admin'")) {
@@ -23,20 +22,13 @@ try {
   }
 } catch (startupError) {
   console.error('[HORIZON Startup Error]', startupError);
-  const express = require('express');
-  app = express();
-  app.use((req, res) => {
-    res.status(500).type('text/html').send(`
-      <!doctype html>
-      <html>
-      <head><title>HORIZON Startup Error</title></head>
-      <body style="font-family: monospace; padding: 32px; background: #0f172a; color: #f87171;">
-        <h2>HORIZON Serverless Startup Error</h2>
-        <pre style="background: #1e293b; padding: 16px; border-radius: 8px; overflow: auto; color: #e2e8f0;">${startupError.stack || startupError.message}</pre>
-      </body>
-      </html>
-    `);
-  });
 }
 
-module.exports = app;
+module.exports = (req, res) => {
+  if (!app) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ error: { code: 'STARTUP_ERROR', message: 'Failed to initialize app.' } }));
+  }
+  return app(req, res);
+};
