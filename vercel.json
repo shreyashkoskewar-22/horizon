@@ -8,16 +8,36 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:match*",
       "destination": "/api/index.js"
     },
     {
-      "source": "/(app|recruiter|admin)(/.*)?",
+      "source": "/app",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/app/:match*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/recruiter",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/recruiter/:match*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/:match*",
       "destination": "/app.html"
     },
     {
       "source": "/grievance-redressal",
-      "destination": "/grievance.html"
+      "destination": "/grievance-redressal.html"
     }
   ]
 }
