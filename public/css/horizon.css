@@ -961,6 +961,9 @@ a.chip-quiet:hover { text-decoration: none; background: #E6EAEE; }
   .next-item .ni-ic { grid-row: span 3; }
   .next-item .ni-act { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 6px; }
 }
+.captcha-box { min-height: 65px; max-height: 65px; overflow: hidden; display: flex; align-items: flex-start; }
+.captcha-box iframe { max-height: 65px !important; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

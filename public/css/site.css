@@ -169,7 +169,8 @@
 .role-tab[aria-selected='true'] { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(16,36,58,.08); }
 .role-tab[aria-selected='true'] .icon { color: var(--gold); }
 .form-section-title { font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin: 8px 0 -4px; }
-.captcha-box { min-height: 65px; display: flex; align-items: center; }
+.captcha-box { min-height: 65px; max-height: 65px; overflow: hidden; display: flex; align-items: flex-start; }
+.captcha-box iframe { max-height: 65px !important; }
 .devmail { background: #FFFAF0; border-style: dashed; border-color: #D9B46E; }
 .pw-toggle { gap: 6px; color: var(--text-muted); }
 .pw-toggle .pw-text { font-size: .8rem; }
