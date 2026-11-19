@@ -1,14 +1,23 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "functions": {
     "api/index.js": {
-      "includeFiles": "public/**"
+      "includeFiles": "{public/**,server/**}"
     }
   },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "destination": "/api/index.js"
+    },
+    {
+      "source": "/(app|recruiter|admin)(/.*)?",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/grievance-redressal",
+      "destination": "/grievance.html"
     }
   ]
 }
