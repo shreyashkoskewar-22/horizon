@@ -12,32 +12,16 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/app",
-      "destination": "/app.html"
-    },
-    {
       "source": "/app/:match*",
-      "destination": "/app.html"
-    },
-    {
-      "source": "/recruiter",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/recruiter/:match*",
-      "destination": "/app.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/admin/:match*",
-      "destination": "/app.html"
-    },
-    {
-      "source": "/grievance-redressal",
-      "destination": "/grievance-redressal.html"
+      "destination": "/app"
     }
   ]
 }
