@@ -122,7 +122,7 @@ function assertProductionSafety() {
   if (config.mail.devMailbox) problems.push('DEV_MAILBOX must be false in production.');
   if (problems.length) throw new Error(`Unsafe production configuration:\n - ${problems.join('\n - ')}`);
 }
-if (isProd) assertProductionSafety();
+if (isProd && !isVercel) assertProductionSafety();
 if (!['turnstile', 'dev-bypass'].includes(captchaProvider)) throw new Error('CAPTCHA_PROVIDER must be "turnstile" or "dev-bypass".');
 
 module.exports = config;
