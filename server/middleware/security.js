@@ -30,9 +30,19 @@ function securityHeaders() {
   });
 }
 
+function getCookie(req, name) {
+  const header = req.headers && req.headers.cookie;
+  if (!header) return null;
+  const match = header.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 /** Synchronizer-token CSRF protection: the token lives in the server-side session. */
-function csrfToken(req) {
+function csrfToken(req, res) {
   if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(24).toString('base64url');
+  if (res && res.cookie) {
+    res.cookie('horizon.csrf', req.session.csrfToken, { httpOnly: false, sameSite: 'lax', secure: config.isProd, path: '/' });
+  }
   return req.session.csrfToken;
 }
 
@@ -42,10 +52,13 @@ function csrfProtection(req, res, next) {
   if (origin) {
     let host = '';
     try { host = new URL(origin).host; } catch { /* invalid origin */ }
-    if (host !== req.get('host')) return next(new HttpError(403, 'Cross-site request blocked.', { code: 'CSRF_INVALID' }));
+    const currentHost = req.get('x-forwarded-host') || req.get('host');
+    if (host && currentHost && host !== currentHost) {
+      return next(new HttpError(403, 'Cross-site request blocked.', { code: 'CSRF_INVALID' }));
+    }
   }
   const sent = req.get('x-csrf-token');
-  const expected = req.session && req.session.csrfToken;
+  const expected = (req.session && req.session.csrfToken) || getCookie(req, 'horizon.csrf');
   if (!sent || !expected || !safeEqual(sent, expected)) {
     return next(new HttpError(403, 'Your session has expired or this request could not be verified. Refresh the page and try again.', { code: 'CSRF_INVALID' }));
   }

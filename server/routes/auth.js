@@ -92,15 +92,15 @@ async function issueCode(user) {
   });
 }
 
-function sessionPayload(req, user) {
-  return { user: publicUser(user), verification: verificationState(user), next: nextFor(user), home: homeFor(user), csrfToken: csrfToken(req) };
+function sessionPayload(req, res, user) {
+  return { user: publicUser(user), verification: verificationState(user), next: nextFor(user), home: homeFor(user), csrfToken: csrfToken(req, res) };
 }
 
-router.get('/csrf', (req, res) => res.json({ csrfToken: csrfToken(req) }));
+router.get('/csrf', (req, res) => res.json({ csrfToken: csrfToken(req, res) }));
 
 router.get('/me', (req, res) => {
-  if (!req.user) return res.json({ user: null, csrfToken: csrfToken(req), suspended: !!req.accountSuspended });
-  return res.json(sessionPayload(req, req.user));
+  if (!req.user) return res.json({ user: null, csrfToken: csrfToken(req, res), suspended: !!req.accountSuspended });
+  return res.json(sessionPayload(req, res, req.user));
 });
 
 router.post('/register', limiters.register, validate(registerSchema), async (req, res) => {

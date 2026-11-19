@@ -49,7 +49,7 @@ const config = {
   port,
   host: env.HOST || '127.0.0.1',
   appUrl: (env.APP_URL || `http://localhost:${port}`).replace(/\/$/, ''),
-  trustProxy: env.TRUST_PROXY ? (/^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY) : false,
+  trustProxy: isVercel ? 1 : (env.TRUST_PROXY ? (/^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY) : false),
   dataDir,
   databaseFile: env.DATABASE_FILE ? path.resolve(ROOT, env.DATABASE_FILE) : path.join(dataDir, 'horizon.db'),
   storageDir: env.STORAGE_DIR ? path.resolve(ROOT, env.STORAGE_DIR) : (isVercel ? '/tmp/storage' : path.resolve(ROOT, 'storage')),
