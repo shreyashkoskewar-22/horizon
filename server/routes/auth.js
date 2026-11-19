@@ -303,7 +303,7 @@ router.post('/verification-proof', requireAuth, limiters.upload, proofUpload, as
 
 /** Development-only mail preview so the demo works without SMTP. Shows only the signed-in user's own mail. */
 router.get('/dev-mailbox', requireAuth, (req, res) => {
-  if (!config.mail.devMailbox || config.isProd) throw new HttpError(404, 'Not available.');
+  if (!config.mail.devMailbox || (config.isProd && process.env.ALLOW_DEMO_SEED !== 'true')) throw new HttpError(404, 'Not available.');
   const messages = db().all('SELECT subject, body, created_at FROM email_outbox WHERE to_email = ? ORDER BY id DESC LIMIT 3', [req.user.email]);
   res.json({ messages });
 });
