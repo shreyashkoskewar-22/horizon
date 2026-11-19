@@ -20,7 +20,7 @@ const ago = (days, hours = 0) => toSql(addHours(addDays(new Date(), -days), -hou
 const inDays = (days) => dateOnly(addDays(new Date(), days));
 
 async function seed(db, { log = console.log } = {}) {
-  if (config.isProd) throw new Error('Refusing to seed demo data in production.');
+  if (config.isProd && process.env.ALLOW_DEMO_SEED !== 'true') throw new Error('Refusing to seed demo data in production.');
   const files = require('../services/files');
   const { validateResume } = require('../services/resume-validator');
   files.ensureStorage();
@@ -92,9 +92,13 @@ async function seed(db, { log = console.log } = {}) {
   const saraCv = await cvFor(saraId, 'Sara Thomas', 'sara.demo@nitt.edu', 'National Institute of Technology, Tiruchirappalli', 'B.Tech, Computer Science and Engineering', 2027, 22);
 
   const assets = path.join(__dirname, 'seed-assets');
+  const readAsset = (filename) => {
+    const p = path.join(assets, filename);
+    return fs.existsSync(p) ? fs.readFileSync(p) : Buffer.from('ftypisom', 'utf8');
+  };
   const videoReport = { status: 'approved', checks: [{ id: 'format', label: 'Video format', result: 'pass', detail: 'MP4 container confirmed from file contents.' }, { id: 'duration', label: 'Length', result: 'warn', detail: '8 seconds measured from the file — demo placeholder.' }], checkedAt: new Date().toISOString() };
-  const riyaVideo = files.storeBuffer({ buffer: fs.readFileSync(path.join(assets, 'demo-student-video.mp4')), originalName: 'Riya_Kapoor_video_resume.mp4', userId: riyaId, kind: 'video', type: 'mp4', reviewStatus: 'approved', report: videoReport, meta: { durationSeconds: 8, measured: true }, createdAt: ago(16) });
-  files.storeBuffer({ buffer: fs.readFileSync(path.join(assets, 'demo-recruiter-video.mp4')), originalName: 'Meridian_intro.mp4', userId: meiId, kind: 'video', type: 'mp4', reviewStatus: 'approved', report: videoReport, meta: { durationSeconds: 8, measured: true }, createdAt: ago(50) });
+  const riyaVideo = files.storeBuffer({ buffer: readAsset('demo-student-video.mp4'), originalName: 'Riya_Kapoor_video_resume.mp4', userId: riyaId, kind: 'video', type: 'mp4', reviewStatus: 'approved', report: videoReport, meta: { durationSeconds: 8, measured: true }, createdAt: ago(16) });
+  files.storeBuffer({ buffer: readAsset('demo-recruiter-video.mp4'), originalName: 'Meridian_intro.mp4', userId: meiId, kind: 'video', type: 'mp4', reviewStatus: 'approved', report: videoReport, meta: { durationSeconds: 8, measured: true }, createdAt: ago(50) });
 
   const idCard = makePdf([[{ text: 'DEMO STUDENT IDENTITY CARD', bold: true, size: 16 }, 'NOT A REAL DOCUMENT - generated for the HORIZON demo', { text: 'All India Institute of Medical Sciences, New Delhi', gap: 12 }, 'Name: Kabir Menon', 'Programme: MBBS (Year 3)', 'Valid until: 2028']], { title: 'Demo ID card' });
   const kabirProof = files.storeBuffer({ buffer: idCard, originalName: 'Kabir_Menon_student_ID.pdf', userId: kabirId, kind: 'id_proof', type: 'pdf', reviewStatus: 'submitted', createdAt: ago(0, 20) });

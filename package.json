@@ -5,7 +5,7 @@
   "description": "HORIZON \u2014 verified international internship discovery for students of India's Institutions of National Importance.",
   "main": "server/index.js",
   "engines": {
-    "node": ">=22.13.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "node --watch-path=server --disable-warning=ExperimentalWarning server/index.js",

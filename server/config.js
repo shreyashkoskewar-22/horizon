@@ -25,7 +25,7 @@ const int = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n
 const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA';
 const TURNSTILE_TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 
-const isVercel = Boolean(env.VERCEL);
+const isVercel = Boolean(env.VERCEL || env.VERCEL_ENV || env.AWS_LAMBDA_FUNCTION_NAME);
 const dataDir = env.DATA_DIR ? path.resolve(ROOT, env.DATA_DIR) : (isVercel ? '/tmp/data' : path.resolve(ROOT, 'data'));
 
 function developmentSecret() {

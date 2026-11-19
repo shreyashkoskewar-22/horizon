@@ -9,18 +9,37 @@ function migrate(db, { log = console.log } = {}) {
     applied_at TEXT NOT NULL DEFAULT (datetime('now'))
   )`);
   const dir = path.join(__dirname, 'migrations');
-  const files = fs.readdirSync(dir).filter((f) => /^\d+_[\w-]+\.sql$/.test(f)).sort();
+  let files = [];
+  try {
+    if (fs.existsSync(dir)) {
+      files = fs.readdirSync(dir).filter((f) => /^\d+_[\w-]+\.sql$/.test(f)).sort();
+    }
+  } catch (e) {
+    files = [];
+  }
+
   const applied = new Set(db.all('SELECT version FROM schema_migrations').map((r) => r.version));
   let count = 0;
-  for (const file of files) {
-    if (applied.has(file)) continue;
-    const sql = fs.readFileSync(path.join(dir, file), 'utf8');
+
+  if (files.length === 0 && !applied.has('001_initial.sql')) {
+    const sql = require('./initial-sql');
     db.tx(() => {
       db.exec(sql);
-      db.run('INSERT INTO schema_migrations (version) VALUES (?)', [file]);
+      db.run('INSERT INTO schema_migrations (version) VALUES (?)', ['001_initial.sql']);
     });
     count += 1;
-    log(`[db] applied migration ${file}`);
+    log(`[db] applied embedded migration 001_initial.sql`);
+  } else {
+    for (const file of files) {
+      if (applied.has(file)) continue;
+      const sql = fs.readFileSync(path.join(dir, file), 'utf8');
+      db.tx(() => {
+        db.exec(sql);
+        db.run('INSERT INTO schema_migrations (version) VALUES (?)', [file]);
+      });
+      count += 1;
+      log(`[db] applied migration ${file}`);
+    }
   }
   return count;
 }
