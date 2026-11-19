@@ -5,6 +5,7 @@ const { createApp } = require('../server/app');
 const { getDb } = require('../server/db');
 
 let app;
+let initPromise = null;
 
 try {
   app = createApp();
@@ -13,7 +14,7 @@ try {
     const db = getDb();
     if (!db.value("SELECT COUNT(*) FROM users WHERE role = 'admin'")) {
       const seedModule = require('../server/db/seed');
-      seedModule.seed(db, { log: () => {} }).catch((err) => {
+      initPromise = seedModule.seed(db, { log: () => {} }).catch((err) => {
         console.error('[seed error]', err.message);
       });
     }
@@ -24,7 +25,11 @@ try {
   console.error('[HORIZON Startup Error]', startupError);
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
+  if (initPromise) {
+    try { await initPromise; } catch {}
+    initPromise = null;
+  }
   if (!app) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
