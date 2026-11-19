@@ -25,7 +25,8 @@ const int = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n
 const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA';
 const TURNSTILE_TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 
-const dataDir = path.resolve(ROOT, env.DATA_DIR || 'data');
+const isVercel = Boolean(env.VERCEL);
+const dataDir = env.DATA_DIR ? path.resolve(ROOT, env.DATA_DIR) : (isVercel ? '/tmp/data' : path.resolve(ROOT, 'data'));
 
 function developmentSecret() {
   const file = path.join(dataDir, '.dev-session-secret');
@@ -50,9 +51,9 @@ const config = {
   trustProxy: env.TRUST_PROXY ? (/^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY) : false,
   dataDir,
   databaseFile: env.DATABASE_FILE ? path.resolve(ROOT, env.DATABASE_FILE) : path.join(dataDir, 'horizon.db'),
-  storageDir: path.resolve(ROOT, env.STORAGE_DIR || 'storage'),
+  storageDir: env.STORAGE_DIR ? path.resolve(ROOT, env.STORAGE_DIR) : (isVercel ? '/tmp/storage' : path.resolve(ROOT, 'storage')),
   publicDir: path.join(ROOT, 'public'),
-  sessionSecret: env.SESSION_SECRET || (isProd ? '' : developmentSecret()),
+  sessionSecret: env.SESSION_SECRET || (isProd && !isVercel ? '' : developmentSecret()),
   sessionMaxAgeHours: int(env.SESSION_MAX_AGE_HOURS, 8),
   bcryptRounds: int(env.BCRYPT_ROUNDS, isTest ? 4 : 12),
   captcha: {
