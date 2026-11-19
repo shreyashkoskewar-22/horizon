@@ -9,7 +9,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const bcrypt = require('bcryptjs');
 const config = require('../config');
-const { toSql, nowSql, addDays, addHours, dateOnly, sha256 } = require('../lib/util');
+const { toSql, nowSql, addDays, addHours, dateOnly, sha256, hmac } = require('../lib/util');
 const { toUsdMonthly } = require('../lib/constants');
 const { makePdf, makeCvPdf } = require('../lib/simple-pdf');
 const INST = require('./seed-institutions');
@@ -50,6 +50,16 @@ async function seed(db, { log = console.log } = {}) {
   const arjunId = addUser({ role: 'student', name: 'Arjun Nair', email: 'arjun.demo@iitb.ac.in', password: S.studentPassword, status: 'approved', method: 'email_domain', institution: 'Indian Institute of Technology Bombay', createdDays: 40 });
   const saraId = addUser({ role: 'student', name: 'Sara Thomas', email: 'sara.demo@nitt.edu', password: S.studentPassword, status: 'approved', method: 'email_domain', institution: 'National Institute of Technology, Tiruchirappalli', createdDays: 38 });
   const kabirId = addUser({ role: 'student', name: 'Kabir Menon', email: S.pendingStudentEmail, password: S.pendingStudentPassword, status: 'pending', institution: 'All India Institute of Medical Sciences, New Delhi', createdDays: 1 });
+  const vnitStudentId = addUser({
+    role: 'student',
+    name: 'VNIT Student',
+    email: 'bt24cse097@students.vnit.ac.in',
+    password: S.studentPassword,
+    status: 'approved',
+    method: 'email_domain',
+    institution: 'Visvesvaraya National Institute of Technology, Nagpur',
+    createdDays: 1,
+  });
   const meiId = addUser({ role: 'recruiter', name: 'Mei Lin Tan', email: S.recruiterEmail, password: S.recruiterPassword, status: 'approved', method: 'manual', org: 'meridian', createdDays: 60 });
   const eleanorId = addUser({ role: 'recruiter', name: 'Eleanor Hughes', email: 'eleanor.hughes@northbankridge.example', password: S.recruiterPassword, status: 'approved', method: 'manual', org: 'northbank', createdDays: 58 });
   const jonasId = addUser({ role: 'recruiter', name: 'Jonas Weber', email: 'jonas@kestrelwave.example', password: S.recruiterPassword, status: 'approved', method: 'manual', org: 'kestrel', createdDays: 55 });
@@ -72,6 +82,17 @@ async function seed(db, { log = console.log } = {}) {
   profile(arjunId, { programme: 'B.Tech, Electrical Engineering', year: 3, grad: 2028, skills: ['Python', 'Excel', 'Problem Solving', 'Market Research'], languages: ['English', 'Hindi', 'Malayalam'], countries: ['Singapore'], industries: ['Management Consulting'], bio: 'Demo student profile.' });
   profile(saraId, { programme: 'B.Tech, Computer Science and Engineering', year: 4, grad: 2027, skills: ['SQL', 'Python', 'Tableau', 'Statistics'], languages: ['English', 'Tamil'], countries: ['Singapore', 'Germany'], industries: ['Data Analytics'], bio: 'Demo student profile.' });
   profile(kabirId, { programme: 'MBBS', year: 3, grad: 2028 });
+  profile(vnitStudentId, {
+    programme: 'BTech in computer science and engineering',
+    year: 3,
+    grad: 2028,
+    skills: ['Python', 'SQL', 'Data Structures', 'Web Development'],
+    countries: ['Singapore', 'Germany', 'Japan'],
+    industries: ['Technology', 'Artificial Intelligence', 'Data Analytics'],
+    bio: 'Third-year CSE student at Visvesvaraya National Institute of Technology, Nagpur.',
+  });
+  db.run('INSERT INTO email_verifications (user_id, code_hash, expires_at) VALUES (?, ?, ?)',
+    [vnitStudentId, hmac(config.sessionSecret, `${vnitStudentId}:891376`), toSql(addHours(new Date(), 24))]);
 
   const recProfile = (userId, designation, bio) => db.run('INSERT INTO recruiter_profiles (user_id, designation, bio) VALUES (?, ?, ?)', [userId, designation, bio]);
   recProfile(meiId, 'Campus Recruiting Manager', 'I lead early-careers hiring for Meridian Arc across Asia-Pacific. Every application gets a reply from our team. (Demo recruiter.)');

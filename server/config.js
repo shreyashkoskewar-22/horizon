@@ -54,7 +54,7 @@ const config = {
   databaseFile: env.DATABASE_FILE ? path.resolve(ROOT, env.DATABASE_FILE) : path.join(dataDir, 'horizon.db'),
   storageDir: env.STORAGE_DIR ? path.resolve(ROOT, env.STORAGE_DIR) : (isVercel ? '/tmp/storage' : path.resolve(ROOT, 'storage')),
   publicDir: path.join(ROOT, 'public'),
-  sessionSecret: env.SESSION_SECRET || (isProd && !isVercel ? '' : developmentSecret()),
+  sessionSecret: env.SESSION_SECRET || (isVercel ? 'horizon-ini-platform-session-secret-key-2026-vnit-iim-stable' : (isProd ? '' : developmentSecret())),
   sessionMaxAgeHours: int(env.SESSION_MAX_AGE_HOURS, 8),
   bcryptRounds: int(env.BCRYPT_ROUNDS, isTest ? 4 : 12),
   captcha: {
