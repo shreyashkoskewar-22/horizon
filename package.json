@@ -1,0 +1,38 @@
+{
+  "name": "horizon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HORIZON \u2014 verified international internship discovery for students of India's Institutions of National Importance.",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node --watch-path=server --disable-warning=ExperimentalWarning server/index.js",
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "db:migrate": "node --disable-warning=ExperimentalWarning server/db/migrate.js",
+    "db:seed": "node --disable-warning=ExperimentalWarning server/db/seed.js",
+    "db:reset": "node --disable-warning=ExperimentalWarning server/db/seed.js --reset",
+    "admin:create": "node --disable-warning=ExperimentalWarning scripts/create-admin.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/*.test.js",
+    "test:node-sqlite": "SQLITE_DRIVER=node node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/*.test.js"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.4",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.6.0",
+    "pdfjs-dist": "^6.5.438",
+    "zod": "^4.6.7"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^13.2.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.2"
+  }
+}

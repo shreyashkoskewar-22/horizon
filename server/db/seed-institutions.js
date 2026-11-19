@@ -1,0 +1,281 @@
+'use strict';
+/**
+ * Institutions of National Importance as listed by the Ministry of Education, Government of India
+ * (https://www.education.gov.in/en/node/198, retrieved 18 November 2026). Each row:
+ * [name, city, state/UT, governing Act]. Eligibility on HORIZON is based on this legal designation.
+ * Administrators should re-check the official list periodically; new INIs are added by Acts of Parliament.
+ */
+const SOURCE_URL = 'https://www.education.gov.in/en/node/198';
+const RETRIEVED = '18 Nov 2026';
+
+const IIIT14 = 'Indian Institutes of Information Technology Act, 2014 and amendments';
+const IIITPPP = 'Indian Institutes of Information Technology (Public-Private Partnership) Act, 2017';
+const IIM = 'Indian Institutes of Management Act, 2017';
+const NIT = 'National Institutes of Technology, Science Education and Research Act, 2007 and amendments';
+const IIT = 'Institutes of Technology Act, 1961 and amendments';
+const SPA = 'School of Planning and Architecture Act, 2014';
+const AIIMS = 'All India Institute of Medical Sciences Act, 1956 and amendments';
+const NIPER = 'National Institute of Pharmaceutical Education and Research Act, 1998 and amendment';
+const NID = 'National Institute of Design Act, 2014 and amendment';
+const ENTRY63 = 'Entry 63, Union List, Seventh Schedule (Article 246) of the Constitution of India';
+
+const ROWS = [
+  ['Aligarh Muslim University', 'Aligarh', 'Uttar Pradesh', ENTRY63],
+  ['Banaras Hindu University', 'Varanasi', 'Uttar Pradesh', ENTRY63],
+  ['University of Delhi', 'Delhi', 'Delhi', ENTRY63],
+  ['Atal Bihari Vajpayee Indian Institute of Information Technology and Management, Gwalior', 'Gwalior', 'Madhya Pradesh', IIIT14],
+  ['Indian Institute of Information Technology, Allahabad', 'Allahabad', 'Uttar Pradesh', IIIT14],
+  ['Pandit Dwarka Prasad Mishra Indian Institute of Information Technology, Design and Manufacturing, Jabalpur', 'Jabalpur', 'Madhya Pradesh', IIIT14],
+  ['Indian Institute of Information Technology, Design and Manufacturing, Kancheepuram', 'Kancheepuram', 'Tamil Nadu', IIIT14],
+  ['Indian Institute of Information Technology, Design and Manufacturing, Kurnool', 'Kurnool', 'Andhra Pradesh', IIIT14],
+  ['Indian Institute of Information Technology, Dharwad', 'Dharwad', 'Karnataka', IIITPPP],
+  ['Indian Institute of Information Technology, Guwahati', 'Guwahati', 'Assam', IIITPPP],
+  ['Indian Institute of Information Technology, Kalyani', 'Kalyani', 'West Bengal', IIITPPP],
+  ['Indian Institute of Information Technology, Kota', 'Kota', 'Rajasthan', IIITPPP],
+  ['Indian Institute of Information Technology, Kottayam', 'Kottayam', 'Kerala', IIITPPP],
+  ['Indian Institute of Information Technology, Lucknow', 'Lucknow', 'Uttar Pradesh', IIITPPP],
+  ['Indian Institute of Information Technology, Senapati', 'Senapati', 'Manipur', IIITPPP],
+  ['Indian Institute of Information Technology, Nagpur', 'Nagpur', 'Maharashtra', IIITPPP],
+  ['Indian Institute of Information Technology, Pune', 'Pune', 'Maharashtra', IIITPPP],
+  ['Indian Institute of Information Technology, Ranchi', 'Ranchi', 'Jharkhand', IIITPPP],
+  ['Indian Institute of Information Technology, Sonepat', 'Sonepat', 'Haryana', IIITPPP],
+  ['Indian Institute of Information Technology, Sri City', 'Sri City', 'Andhra Pradesh', IIITPPP],
+  ['Indian Institute of Information Technology, Tiruchirappalli', 'Tiruchirappalli', 'Tamil Nadu', IIITPPP],
+  ['Indian Institute of Information Technology, Una', 'Una', 'Himachal Pradesh', IIITPPP],
+  ['Indian Institute of Information Technology, Vadodara', 'Vadodara', 'Gujarat', IIITPPP],
+  ['Indian Institute of Information Technology, Agartala', 'Agartala', 'Tripura', IIITPPP],
+  ['Indian Institute of Information Technology, Bhagalpur', 'Bhagalpur', 'Bihar', IIITPPP],
+  ['Indian Institute of Information Technology, Bhopal', 'Bhopal', 'Madhya Pradesh', IIITPPP],
+  ['Indian Institute of Information Technology, Raichur', 'Raichur', 'Karnataka', IIITPPP],
+  ['Indian Institute of Information Technology, Surat', 'Surat', 'Gujarat', IIITPPP],
+  ['Indian Institute of Management Ahmedabad', 'Ahmedabad', 'Gujarat', IIM],
+  ['Indian Institute of Management Amritsar', 'Amritsar', 'Punjab', IIM],
+  ['Indian Institute of Management Bangalore', 'Bangalore', 'Karnataka', IIM],
+  ['Indian Institute of Management Bodh Gaya', 'Bodh Gaya', 'Bihar', IIM],
+  ['Indian Institute of Management Calcutta', 'Kolkata', 'West Bengal', IIM],
+  ['Indian Institute of Management Indore', 'Indore', 'Madhya Pradesh', IIM],
+  ['Indian Institute of Management Jammu', 'Jammu', 'Jammu and Kashmir', IIM],
+  ['Indian Institute of Management Kashipur', 'Kashipur', 'Uttarakhand', IIM],
+  ['Indian Institute of Management Kozhikode', 'Kozhikode', 'Kerala', IIM],
+  ['Indian Institute of Management Lucknow', 'Lucknow', 'Uttar Pradesh', IIM],
+  ['Indian Institute of Management Nagpur', 'Nagpur', 'Maharashtra', IIM],
+  ['Indian Institute of Management Raipur', 'Raipur', 'Chhattisgarh', IIM],
+  ['Indian Institute of Management Ranchi', 'Ranchi', 'Jharkhand', IIM],
+  ['Indian Institute of Management Rohtak', 'Rohtak', 'Haryana', IIM],
+  ['Indian Institute of Management Sambalpur', 'Sambalpur', 'Odisha', IIM],
+  ['Indian Institute of Management Shillong', 'Shillong', 'Meghalaya', IIM],
+  ['Indian Institute of Management Sirmaur', 'Paonta Sahib', 'Himachal Pradesh', IIM],
+  ['Indian Institute of Management Tiruchirappalli', 'Tiruchirappalli', 'Tamil Nadu', IIM],
+  ['Indian Institute of Management Udaipur', 'Udaipur', 'Rajasthan', IIM],
+  ['Indian Institute of Management Visakhapatnam', 'Visakhapatnam', 'Andhra Pradesh', IIM],
+  ['Indian Institute of Science Education and Research, Berhampur', 'Berhampur', 'Odisha', NIT],
+  ['Indian Institute of Science Education and Research, Bhopal', 'Bhopal', 'Madhya Pradesh', NIT],
+  ['Indian Institute of Science Education and Research, Kolkata', 'Kolkata', 'West Bengal', NIT],
+  ['Indian Institute of Science Education and Research, Mohali', 'Mohali', 'Punjab', NIT],
+  ['Indian Institute of Science Education and Research, Pune', 'Pune', 'Maharashtra', NIT],
+  ['Indian Institute of Science Education and Research, Thiruvananthapuram', 'Thiruvananthapuram', 'Kerala', NIT],
+  ['Indian Institute of Science Education and Research, Tirupati', 'Tirupati', 'Andhra Pradesh', NIT],
+  ['Indian Institute of Engineering Science and Technology, Shibpur', 'Shibpur', 'West Bengal', NIT],
+  ['Motilal Nehru National Institute of Technology, Allahabad', 'Allahabad', 'Uttar Pradesh', NIT],
+  ['Maulana Azad National Institute of Technology, Bhopal', 'Bhopal', 'Madhya Pradesh', NIT],
+  ['National Institute of Technology, Calicut', 'Kozhikode', 'Kerala', NIT],
+  ['National Institute of Technology, Durgapur', 'Durgapur', 'West Bengal', NIT],
+  ['National Institute of Technology, Hamirpur', 'Hamirpur', 'Himachal Pradesh', NIT],
+  ['Malaviya National Institute of Technology, Jaipur', 'Jaipur', 'Rajasthan', NIT],
+  ['Dr. B. R. Ambedkar National Institute of Technology, Jalandhar', 'Jalandhar', 'Punjab', NIT],
+  ['National Institute of Technology, Jamshedpur', 'Jamshedpur', 'Jharkhand', NIT],
+  ['National Institute of Technology, Kurukshetra', 'Kurukshetra', 'Haryana', NIT],
+  ['Visvesvaraya National Institute of Technology, Nagpur', 'Nagpur', 'Maharashtra', NIT],
+  ['National Institute of Technology, Patna', 'Patna', 'Bihar', NIT],
+  ['National Institute of Technology, Rourkela', 'Rourkela', 'Odisha', NIT],
+  ['National Institute of Technology, Silchar', 'Silchar', 'Assam', NIT],
+  ['National Institute of Technology, Srinagar', 'Srinagar', 'Jammu and Kashmir', NIT],
+  ['National Institute of Technology, Uttarakhand', 'Srinagar', 'Uttarakhand', NIT],
+  ['Sardar Vallabhbhai National Institute of Technology, Surat', 'Surat', 'Gujarat', NIT],
+  ['National Institute of Technology, Karnataka', 'Surathkal', 'Karnataka', NIT],
+  ['National Institute of Technology, Tiruchirappalli', 'Tiruchirappalli', 'Tamil Nadu', NIT],
+  ['National Institute of Technology, Warangal', 'Warangal', 'Telangana', NIT],
+  ['National Institute of Technology, Raipur', 'Raipur', 'Chhattisgarh', NIT],
+  ['National Institute of Technology, Agartala', 'Agartala', 'Tripura', NIT],
+  ['National Institute of Technology, Goa', 'Farmagudi', 'Goa', NIT],
+  ['National Institute of Technology, Puducherry', 'Karaikal', 'Puducherry', NIT],
+  ['National Institute of Technology, Delhi', 'New Delhi', 'Delhi', NIT],
+  ['National Institute of Technology, Meghalaya', 'Shillong', 'Meghalaya', NIT],
+  ['National Institute of Technology, Mizoram', 'Aizawl', 'Mizoram', NIT],
+  ['National Institute of Technology, Manipur', 'Imphal', 'Manipur', NIT],
+  ['National Institute of Technology, Nagaland', 'Dimapur', 'Nagaland', NIT],
+  ['National Institute of Technology, Sikkim', 'Ravangla', 'Sikkim', NIT],
+  ['National Institute of Technology, Andhra Pradesh', 'Tadepalligudem', 'Andhra Pradesh', NIT],
+  ['National Institute of Technology, Arunachal Pradesh', 'Yupia', 'Arunachal Pradesh', NIT],
+  ['Indian Institute of Technology (BHU) Varanasi', 'Varanasi', 'Uttar Pradesh', IIT],
+  ['Indian Institute of Technology (Indian School of Mines) Dhanbad', 'Dhanbad', 'Jharkhand', IIT],
+  ['Indian Institute of Technology Bhilai', 'Bhilai', 'Chhattisgarh', IIT],
+  ['Indian Institute of Technology Bhubaneswar', 'Bhubaneswar', 'Odisha', IIT],
+  ['Indian Institute of Technology Bombay', 'Mumbai', 'Maharashtra', IIT],
+  ['Indian Institute of Technology Delhi', 'New Delhi', 'Delhi', IIT],
+  ['Indian Institute of Technology Dharwad', 'Dharwad', 'Karnataka', IIT],
+  ['Indian Institute of Technology Gandhinagar', 'Gandhinagar', 'Gujarat', IIT],
+  ['Indian Institute of Technology Goa', 'Farmagudi', 'Goa', IIT],
+  ['Indian Institute of Technology Guwahati', 'Guwahati', 'Assam', IIT],
+  ['Indian Institute of Technology Hyderabad', 'Hyderabad', 'Telangana', IIT],
+  ['Indian Institute of Technology Indore', 'Indore', 'Madhya Pradesh', IIT],
+  ['Indian Institute of Technology Jammu', 'Jammu', 'Jammu and Kashmir', IIT],
+  ['Indian Institute of Technology Jodhpur', 'Jodhpur', 'Rajasthan', IIT],
+  ['Indian Institute of Technology Kanpur', 'Kanpur', 'Uttar Pradesh', IIT],
+  ['Indian Institute of Technology Kharagpur', 'Kharagpur', 'West Bengal', IIT],
+  ['Indian Institute of Technology Madras', 'Chennai', 'Tamil Nadu', IIT],
+  ['Indian Institute of Technology Mandi', 'Mandi', 'Himachal Pradesh', IIT],
+  ['Indian Institute of Technology Palakkad', 'Palakkad', 'Kerala', IIT],
+  ['Indian Institute of Technology Patna', 'Patna', 'Bihar', IIT],
+  ['Indian Institute of Technology Roorkee', 'Roorkee', 'Uttarakhand', IIT],
+  ['Indian Institute of Technology Ropar', 'Ropar', 'Punjab', IIT],
+  ['Indian Institute of Technology Tirupati', 'Tirupati', 'Andhra Pradesh', IIT],
+  ['School of Planning and Architecture, Bhopal', 'Bhopal', 'Madhya Pradesh', SPA],
+  ['School of Planning and Architecture, Delhi', 'New Delhi', 'Delhi', SPA],
+  ['School of Planning and Architecture, Vijayawada', 'Vijayawada', 'Andhra Pradesh', SPA],
+  ['University of Allahabad', 'Allahabad', 'Uttar Pradesh', 'University of Allahabad Act, 2005'],
+  ['Visva-Bharati University', 'Santiniketan', 'West Bengal', 'Visva-Bharati Act, 1951'],
+  ['Dakshina Bharat Hindi Prachar Sabha', 'Chennai', 'Tamil Nadu', 'Dakshina Bharat Hindi Prachar Sabha Act, 1964'],
+  ['Academy of Scientific and Innovative Research, Ghaziabad', 'Ghaziabad', 'Uttar Pradesh', 'Academy of Scientific and Innovative Research Act, 2011 and amendments'],
+  ['All India Institute of Medical Sciences, Bathinda', 'Bathinda', 'Punjab', AIIMS],
+  ['All India Institute of Medical Sciences, Bhopal', 'Bhopal', 'Madhya Pradesh', AIIMS],
+  ['All India Institute of Medical Sciences, Bhubaneswar', 'Bhubaneswar', 'Odisha', AIIMS],
+  ['All India Institute of Medical Sciences, Bibinagar', 'Bibinagar', 'Telangana', AIIMS],
+  ['All India Institute of Medical Sciences, Deoghar', 'Deoghar', 'Jharkhand', AIIMS],
+  ['All India Institute of Medical Sciences, Gorakhpur', 'Gorakhpur', 'Uttar Pradesh', AIIMS],
+  ['All India Institute of Medical Sciences, Jodhpur', 'Jodhpur', 'Rajasthan', AIIMS],
+  ['All India Institute of Medical Sciences, Mangalagiri', 'Mangalagiri', 'Andhra Pradesh', AIIMS],
+  ['All India Institute of Medical Sciences, Nagpur', 'Nagpur', 'Maharashtra', AIIMS],
+  ['All India Institute of Medical Sciences, Kalyani', 'Kalyani', 'West Bengal', AIIMS],
+  ['All India Institute of Medical Sciences, New Delhi', 'New Delhi', 'Delhi', AIIMS],
+  ['All India Institute of Medical Sciences, Patna', 'Patna', 'Bihar', AIIMS],
+  ['All India Institute of Medical Sciences, Raebareli', 'Raebareli', 'Uttar Pradesh', AIIMS],
+  ['All India Institute of Medical Sciences, Raipur', 'Raipur', 'Chhattisgarh', AIIMS],
+  ['All India Institute of Medical Sciences, Rishikesh', 'Rishikesh', 'Uttarakhand', AIIMS],
+  ['Jawaharlal Institute of Postgraduate Medical Education and Research', 'Pondicherry', 'Puducherry', 'JIPMER Act, 2008'],
+  ['National Institute of Mental Health and Neurosciences', 'Bangalore', 'Karnataka', 'NIMHANS, Bangalore Act, 2012'],
+  ['Postgraduate Institute of Medical Education and Research', 'Chandigarh', 'Chandigarh', 'PGIMER, Chandigarh Act, 1966'],
+  ['National Institute of Pharmaceutical Education and Research, Ahmedabad', 'Ahmedabad', 'Gujarat', NIPER],
+  ['National Institute of Pharmaceutical Education and Research, Guwahati', 'Guwahati', 'Assam', NIPER],
+  ['National Institute of Pharmaceutical Education and Research, Hajipur', 'Hajipur', 'Bihar', NIPER],
+  ['National Institute of Pharmaceutical Education and Research, Hyderabad', 'Hyderabad', 'Telangana', NIPER],
+  ['National Institute of Pharmaceutical Education and Research, Kolkata', 'Kolkata', 'West Bengal', NIPER],
+  ['National Institute of Pharmaceutical Education and Research, Mohali', 'Mohali', 'Punjab', NIPER],
+  ['National Institute of Pharmaceutical Education and Research, Raebareli', 'Raebareli', 'Uttar Pradesh', NIPER],
+  ['Footwear Design and Development Institute', 'Multiple campuses', null, 'Footwear Design and Development Institute Act, 2017'],
+  ['National Institute of Design, Ahmedabad', 'Ahmedabad', 'Gujarat', NID],
+  ['National Institute of Design, Madhya Pradesh', 'Bhopal', 'Madhya Pradesh', NID],
+  ['National Institute of Design, Assam', 'Jorhat', 'Assam', NID],
+  ['National Institute of Design, Haryana', 'Kurukshetra', 'Haryana', NID],
+  ['National Institute of Design, Andhra Pradesh', 'Vijayawada', 'Andhra Pradesh', NID],
+  ['Rani Lakshmi Bai Central Agricultural University', 'Jhansi', 'Uttar Pradesh', 'Rani Lakshmi Bai Central Agricultural University Act, 2014'],
+  ['Rajendra Central Agricultural University', 'Samastipur', 'Bihar', 'Dr. Rajendra Prasad Central Agricultural University Act, 2016'],
+  ['National Forensic Sciences University', 'Gandhinagar', 'Gujarat', 'National Forensic Sciences University Act, 2020'],
+  ['Rashtriya Raksha University', 'Gandhinagar', 'Gujarat', 'Rashtriya Raksha University Act, 2020'],
+  ['Indian Institute of Petroleum & Energy', 'Visakhapatnam', 'Andhra Pradesh', 'Indian Institute of Petroleum & Energy Act, 2017'],
+  ['Rajiv Gandhi Institute of Petroleum Technology Jais', 'Raebareli', 'Uttar Pradesh', 'Rajiv Gandhi Institute of Petroleum Technology Act, 2007'],
+  ['Kalakshetra Foundation', 'Chennai', 'Tamil Nadu', 'Kalakshetra Foundation Act, 1993'],
+  ['National Library', 'Kolkata', 'West Bengal', 'Entry 62, List I, Seventh Schedule of the Constitution of India'],
+  ['National Institute of Food Technology, Entrepreneurship and Management, Thanjavur', 'Thanjavur', 'Tamil Nadu', 'National Institutes of Food Technology, Entrepreneurship and Management Act, 2021'],
+  ['National Institute of Food Technology Entrepreneurship and Management, Kundli', 'Sonepat', 'Haryana', 'National Institutes of Food Technology, Entrepreneurship and Management Act, 2021'],
+  ['Sree Chitra Tirunal Institute for Medical Sciences and Technology', 'Thiruvananthapuram', 'Kerala', 'Sree Chitra Tirunal Institute for Medical Sciences and Technology Act, 1980'],
+  ['Regional Centre for Biotechnology', 'Faridabad', 'Haryana', 'Regional Centre for Biotechnology Act, 2016'],
+  ['Institute of Teaching and Research in Ayurveda', 'Jamnagar', 'Gujarat', 'Institute of Teaching and Research in Ayurveda Act, 2020'],
+  ['New Delhi International Arbitration Centre', 'New Delhi', 'Delhi', 'New Delhi International Arbitration Centre Act, 2019'],
+  ['Rajiv Gandhi National Institute of Youth Development', 'Kanchipuram', 'Tamil Nadu', 'Rajiv Gandhi National Institute of Youth Development Act, 2012'],
+  ['Indian Statistical Institute', 'Kolkata', 'West Bengal', 'Indian Statistical Institute Act, 1959'],
+  ['Nalanda University', 'Rajgir', 'Bihar', 'Nalanda University Act, 2010'],
+];
+
+const SHORT = {
+  'Aligarh Muslim University': 'AMU',
+  'Banaras Hindu University': 'BHU',
+  'University of Delhi': 'DU',
+  'Atal Bihari Vajpayee Indian Institute of Information Technology and Management, Gwalior': 'ABV-IIITM Gwalior',
+  'Pandit Dwarka Prasad Mishra Indian Institute of Information Technology, Design and Manufacturing, Jabalpur': 'IIITDM Jabalpur',
+  'Indian Institute of Engineering Science and Technology, Shibpur': 'IIEST Shibpur',
+  'Motilal Nehru National Institute of Technology, Allahabad': 'MNNIT Allahabad',
+  'Maulana Azad National Institute of Technology, Bhopal': 'MANIT Bhopal',
+  'Malaviya National Institute of Technology, Jaipur': 'MNIT Jaipur',
+  'Dr. B. R. Ambedkar National Institute of Technology, Jalandhar': 'NIT Jalandhar',
+  'Visvesvaraya National Institute of Technology, Nagpur': 'VNIT Nagpur',
+  'Sardar Vallabhbhai National Institute of Technology, Surat': 'SVNIT Surat',
+  'National Institute of Technology, Karnataka': 'NITK Surathkal',
+  'Indian Institute of Technology (BHU) Varanasi': 'IIT (BHU) Varanasi',
+  'Indian Institute of Technology (Indian School of Mines) Dhanbad': 'IIT (ISM) Dhanbad',
+  'Jawaharlal Institute of Postgraduate Medical Education and Research': 'JIPMER',
+  'National Institute of Mental Health and Neurosciences': 'NIMHANS',
+  'Postgraduate Institute of Medical Education and Research': 'PGIMER',
+  'Indian Statistical Institute': 'ISI',
+  'Indian Institute of Petroleum & Energy': 'IIPE',
+  'Rajiv Gandhi Institute of Petroleum Technology Jais': 'RGIPT',
+  'Footwear Design and Development Institute': 'FDDI',
+  'National Forensic Sciences University': 'NFSU',
+  'Rashtriya Raksha University': 'RRU',
+  'Academy of Scientific and Innovative Research, Ghaziabad': 'AcSIR',
+  'Sree Chitra Tirunal Institute for Medical Sciences and Technology': 'SCTIMST',
+  'National Institute of Food Technology, Entrepreneurship and Management, Thanjavur': 'NIFTEM Thanjavur',
+  'National Institute of Food Technology Entrepreneurship and Management, Kundli': 'NIFTEM Kundli',
+};
+
+function shortName(name) {
+  if (SHORT[name]) return SHORT[name];
+  const patterns = [
+    [/^Indian Institute of Technology (.+)$/, 'IIT $1'],
+    [/^Indian Institute of Management (.+)$/, 'IIM $1'],
+    [/^Indian Institute of Science Education and Research, (.+)$/, 'IISER $1'],
+    [/^All India Institute of Medical Sciences, (.+)$/, 'AIIMS $1'],
+    [/^National Institute of Pharmaceutical Education and Research, (.+)$/, 'NIPER $1'],
+    [/^National Institute of Design, (.+)$/, 'NID $1'],
+    [/^School of Planning and Architecture, (.+)$/, 'SPA $1'],
+    [/^National Institute of Technology, (.+)$/, 'NIT $1'],
+    [/^Indian Institute of Information Technology, Design and Manufacturing, (.+)$/, 'IIITDM $1'],
+    [/^Indian Institute of Information Technology, (.+)$/, 'IIIT $1'],
+  ];
+  for (const [re, rep] of patterns) if (re.test(name)) return name.replace(re, rep);
+  return null;
+}
+
+function category(name) {
+  if (/^Indian Institute of Technology/.test(name)) return 'IIT';
+  if (/^Indian Institute of Management/.test(name)) return 'IIM';
+  if (/National Institute of Technology|Indian Institute of Engineering Science and Technology/.test(name)) return 'NIT';
+  if (/Indian Institute of Information Technology/.test(name)) return 'IIIT';
+  if (/Indian Institute of Science Education and Research/.test(name)) return 'IISER';
+  if (/^All India Institute of Medical Sciences/.test(name)) return 'AIIMS';
+  if (/National Institute of Pharmaceutical/.test(name)) return 'NIPER';
+  if (/^National Institute of Design/.test(name)) return 'NID';
+  if (/^School of Planning and Architecture/.test(name)) return 'SPA';
+  if (/^(Aligarh Muslim|Banaras Hindu) University|^University of (Delhi|Allahabad)|Visva-Bharati/.test(name)) return 'Central University';
+  if (/Medical|Postgraduate Medical|Neurosciences|Ayurveda/.test(name)) return 'Medical & Health';
+  return 'Other INI';
+}
+
+/** Institutional email domains seeded for demonstration; administrators should re-verify before production. */
+const DOMAINS = {
+  'Indian Institute of Management Indore': ['iimidr.ac.in'],
+  'Indian Institute of Management Ahmedabad': ['iima.ac.in'],
+  'Indian Institute of Management Bangalore': ['iimb.ac.in'],
+  'Indian Institute of Management Calcutta': ['iimcal.ac.in'],
+  'Indian Institute of Management Lucknow': ['iiml.ac.in'],
+  'Indian Institute of Management Kozhikode': ['iimk.ac.in'],
+  'Indian Institute of Technology Bombay': ['iitb.ac.in'],
+  'Indian Institute of Technology Delhi': ['iitd.ac.in'],
+  'Indian Institute of Technology Madras': ['iitm.ac.in'],
+  'Indian Institute of Technology Kanpur': ['iitk.ac.in'],
+  'Indian Institute of Technology Kharagpur': ['iitkgp.ac.in'],
+  'Indian Institute of Technology Roorkee': ['iitr.ac.in'],
+  'Indian Institute of Technology Guwahati': ['iitg.ac.in'],
+  'Indian Institute of Technology Hyderabad': ['iith.ac.in'],
+  'Indian Institute of Technology Indore': ['iiti.ac.in'],
+  'Indian Institute of Technology (BHU) Varanasi': ['iitbhu.ac.in'],
+  'National Institute of Technology, Tiruchirappalli': ['nitt.edu'],
+  'National Institute of Technology, Karnataka': ['nitk.edu.in'],
+  'Indian Institute of Science Education and Research, Pune': ['iiserpune.ac.in'],
+  'Indian Institute of Information Technology, Allahabad': ['iiita.ac.in'],
+  'Indian Statistical Institute': ['isical.ac.in'],
+  'National Institute of Design, Ahmedabad': ['nid.edu'],
+  'Banaras Hindu University': ['bhu.ac.in'],
+};
+
+module.exports = { SOURCE_URL, RETRIEVED, ROWS, DOMAINS, shortName, category };

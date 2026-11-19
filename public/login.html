@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243A">
+  <meta name="color-scheme" content="light">
+  <title>Sign in — HORIZON</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/horizon.css?v=2026.11.2">
+  <link rel="stylesheet" href="/css/site.css?v=2026.11.2">
+  <script type="module" src="/js/pages/login.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="auth">
+    <aside class="auth-aside" data-auth-aside></aside>
+    <div class="auth-main">
+      <div class="auth-top" data-auth-top></div>
+      <main id="main" class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="lead">Sign in to continue to HORIZON.</p>
+        <div data-alert></div>
+        <form data-login-form novalidate>
+          <div class="field">
+            <label class="label" for="email">Email address</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email" data-validate="required|email" placeholder="you@institute.ac.in">
+            <p class="field-error" data-for="email"></p>
+          </div>
+          <div class="field">
+            <label class="label" for="password">Password</label>
+            <div class="password-wrap"><input class="input" id="password" name="password" type="password" autocomplete="current-password" data-validate="required"><button type="button" class="btn btn-ghost btn-sm pw-toggle" data-toggle-password aria-controls="password">Show</button></div>
+            <p class="field-error" data-for="password"></p>
+          </div>
+          <div class="field">
+            <span class="label">Security check</span>
+            <div class="captcha-box" data-captcha></div>
+            <p class="field-error" data-for="captchaToken" id="err-captcha"></p>
+          </div>
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Sign in</button>
+        </form>
+        <p class="muted center mt-24">New to HORIZON? <a href="/register">Create an account</a></p>
+        <p class="subtle center">Locked out or something wrong with your account? <a href="/grievance-redressal">Contact the grievance desk</a> — no sign-in needed.</p>
+        <div data-demo></div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
